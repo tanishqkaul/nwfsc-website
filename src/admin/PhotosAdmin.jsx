@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase.js'
 import { uploadImage } from '../lib/upload.js'
+import { formatDate } from '../lib/format.js'
+import { groupByAlbum } from '../lib/album.js'
 
 export default function PhotosAdmin() {
   const [files, setFiles] = useState([])
   const [caption, setCaption] = useState('')
+  const [photoDate, setPhotoDate] = useState('')
   const [busy, setBusy] = useState(false)
   const [progress, setProgress] = useState('')
   const [error, setError] = useState('')
@@ -29,6 +32,7 @@ export default function PhotosAdmin() {
   async function uploadAll() {
     setBusy(true); setError('')
     let count = 0
+    const album_id = crypto.randomUUID()
     try {
       for (const file of files) {
         setProgress(`Uploading picture ${count + 1} of ${files.length}…`)
@@ -36,6 +40,8 @@ export default function PhotosAdmin() {
         const { error } = await supabase.from('gallery_photos').insert({
           image_url: url,
           caption: caption.trim(),
+          photo_date: photoDate || null,
+          album_id,
         })
         if (error) throw error
         count++
@@ -43,6 +49,7 @@ export default function PhotosAdmin() {
       setDone(count)
       setFiles([])
       setCaption('')
+      setPhotoDate('')
       if (inputRef.current) inputRef.current.value = ''
       loadPhotos()
     } catch (e) {
@@ -97,8 +104,12 @@ export default function PhotosAdmin() {
               </div>
               <div className="field" style={{ marginTop: '20px' }}>
                 <label htmlFor="caption">A few words about these pictures <span style={{ fontWeight: 400 }}>(optional)</span></label>
-                <p className="hint">For example: “Mother’s Day lunch, May 2026”.</p>
+                <p className="hint">For example: “Mother’s Day lunch”. This is shown once for the whole set of pictures.</p>
                 <input id="caption" type="text" value={caption} onChange={e => setCaption(e.target.value)} />
+              </div>
+              <div className="field">
+                <label htmlFor="photo_date">When was this? <span style={{ fontWeight: 400 }}>(optional)</span></label>
+                <input id="photo_date" type="date" value={photoDate} onChange={e => setPhotoDate(e.target.value)} />
               </div>
               <button className="btn btn-coral btn-block" disabled={busy} onClick={uploadAll}>
                 {busy ? progress : `Put ${files.length} picture${files.length > 1 ? 's' : ''} on the website`}
@@ -111,19 +122,31 @@ export default function PhotosAdmin() {
         {photos.length === 0 ? (
           <div className="empty">No photos yet — they will appear here after you upload them.</div>
         ) : (
-          <div className="photo-grid">
-            {photos.map(p => (
-              <figure className="photo-tile" key={p.id}>
-                <img src={p.image_url} alt={p.caption || 'Club photo'} loading="lazy" />
-                <figcaption style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span>{p.caption || ' '}</span>
-                  <button className="btn btn-danger" style={{ minHeight: '44px', padding: '6px 14px' }} onClick={() => remove(p)}>
-                    Remove
-                  </button>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+          groupByAlbum(photos).map(group => {
+            const first = group[0]
+            return (
+              <div className="photo-album" key={first.album_id || first.id}>
+                {(first.caption || first.photo_date) && (
+                  <div className="photo-album-head">
+                    {first.caption && <strong>{first.caption}</strong>}
+                    {first.photo_date && <span className="meta">{formatDate(first.photo_date)}</span>}
+                  </div>
+                )}
+                <div className="photo-grid">
+                  {group.map(p => (
+                    <figure className="photo-tile" key={p.id}>
+                      <img src={p.image_url} alt={p.caption || 'Club photo'} loading="lazy" />
+                      <figcaption style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button className="btn btn-danger" style={{ minHeight: '44px', padding: '6px 14px' }} onClick={() => remove(p)}>
+                          Remove
+                        </button>
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </div>
+            )
+          })
         )}
       </div>
     </main>
