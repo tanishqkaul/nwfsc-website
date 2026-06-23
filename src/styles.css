@@ -266,6 +266,7 @@ a { color: var(--lagoon); text-decoration-thickness: 2px; text-underline-offset:
 .footer-inner { max-width: var(--maxw); margin: 0 auto; padding: 36px 20px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 30px; }
 .site-footer h3 { color: #fff; margin-bottom: 10px; }
 .site-footer a { color: #ffd98a; }
+.footer-contact { margin-top: 14px; font-weight: 700; font-size: 1.05rem; }
 .footer-bottom {
   border-top: 1px solid rgba(255,255,255,0.18); padding: 14px 20px;
   text-align: center; font-size: 0.85rem; opacity: 0.85;

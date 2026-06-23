@@ -27,9 +27,12 @@ export default function Committee() {
         <div className="section-head">
           <h1>Our Committee</h1>
         </div>
-        <p style={{ maxWidth: '46rem', marginBottom: '28px' }}>
+        <p style={{ maxWidth: '46rem', marginBottom: '10px' }}>
           Our committee members are here to help. Feel free to call or email
           any of us with questions about the club, our events, or how to join.
+        </p>
+        <p style={{ maxWidth: '46rem', marginBottom: '28px', fontWeight: 700, fontSize: '1.1rem' }}>
+          <a href="mailto:northwestfijiseniorsclub@gmail.com">✉️ northwestfijiseniorsclub@gmail.com</a>
         </p>
         {members === null ? (
           <p>Loading committee members…</p>

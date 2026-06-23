@@ -12,6 +12,9 @@ export default function Footer() {
             Supporting senior adults to engage, enrich and foster a sense of
             purpose in their lives.
           </p>
+          <p className="footer-contact">
+            <a href="mailto:northwestfijiseniorsclub@gmail.com">✉️ northwestfijiseniorsclub@gmail.com</a>
+          </p>
         </div>
         <div>
           <h3>Quick links</h3>
