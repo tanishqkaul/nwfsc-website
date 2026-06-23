@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase.js'
 import { uploadImage } from '../lib/upload.js'
-import { formatDate } from '../lib/format.js'
+import { formatDate, wasEdited } from '../lib/format.js'
 
 const EMPTY = { title: '', body: '', category: 'announcement', event_date: '', event_place: '', pinned: false }
 
 export default function Announce() {
   const [form, setForm] = useState(EMPTY)
   const [photo, setPhoto] = useState(null)
+  const [existingImage, setExistingImage] = useState(null)
+  const [editingId, setEditingId] = useState(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [published, setPublished] = useState(false)
@@ -24,12 +26,32 @@ export default function Announce() {
   }
   useEffect(() => { loadExisting() }, [])
 
+  function startEdit(item) {
+    setEditingId(item.id)
+    setForm({
+      title: item.title,
+      body: item.body,
+      category: item.category,
+      event_date: item.event_date || '',
+      event_place: item.event_place || '',
+      pinned: item.pinned,
+    })
+    setExistingImage(item.image_url || null)
+    setPhoto(null)
+    setError('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function cancelEdit() {
+    setEditingId(null); setForm(EMPTY); setPhoto(null); setExistingImage(null); setError('')
+  }
+
   async function publish() {
     setBusy(true); setError('')
     try {
-      let image_url = null
+      let image_url = existingImage
       if (photo) image_url = await uploadImage(photo, 'announcements')
-      const { error } = await supabase.from('announcements').insert({
+      const payload = {
         title: form.title.trim(),
         body: form.body.trim(),
         category: form.category,
@@ -37,7 +59,10 @@ export default function Announce() {
         event_place: form.category === 'event' ? form.event_place.trim() || null : null,
         pinned: form.pinned,
         image_url,
-      })
+      }
+      const { error } = editingId
+        ? await supabase.from('announcements').update(payload).eq('id', editingId)
+        : await supabase.from('announcements').insert(payload)
       if (error) throw error
       setPublished(true)
       loadExisting()
@@ -59,15 +84,16 @@ export default function Announce() {
   }
 
   if (published) {
+    const wasEditing = Boolean(editingId)
     return (
       <main className="section"><div className="container"><div className="form-card success-screen" style={{ margin: '0 auto' }}>
         <div className="big-tick" aria-hidden="true">✅</div>
-        <h2>Your announcement is now on the website</h2>
+        <h2>{wasEditing ? 'Your changes are now on the website' : 'Your announcement is now on the website'}</h2>
         <p>Everyone who visits the website can see it.</p>
         <div className="actions">
           <Link className="btn btn-primary" to="/news">See it on the website</Link>
-          <button className="btn btn-outline" onClick={() => { setForm(EMPTY); setPhoto(null); setPublished(false) }}>
-            Write another one
+          <button className="btn btn-outline" onClick={() => { cancelEdit(); setPublished(false) }}>
+            {wasEditing ? 'Make another change' : 'Write another one'}
           </button>
           <Link className="btn btn-quiet" to="/admin">Back to admin</Link>
         </div>
@@ -79,7 +105,7 @@ export default function Announce() {
     <main className="section">
       <div className="container">
         <Link className="back-link" to="/admin">← Back to admin</Link>
-        <h1 style={{ marginBottom: '24px' }}>Make an announcement</h1>
+        <h1 style={{ marginBottom: '24px' }}>{editingId ? 'Edit announcement' : 'Make an announcement'}</h1>
         <div className="form-card">
           {error && <div className="notice notice-error">{error}</div>}
 
@@ -124,7 +150,10 @@ export default function Announce() {
           </div>
 
           <div className="field">
-            <label htmlFor="photo">Add a picture <span style={{ fontWeight: 400 }}>(optional)</span></label>
+            <label htmlFor="photo">{editingId ? 'Replace the picture' : 'Add a picture'} <span style={{ fontWeight: 400 }}>(optional)</span></label>
+            {existingImage && !photo && (
+              <p className="hint">There is already a picture on this post. Choose a new one only if you want to replace it.</p>
+            )}
             <input id="photo" type="file" accept="image/*" onChange={e => setPhoto(e.target.files?.[0] || null)} />
             {photo && <p className="hint">Picture chosen: {photo.name}</p>}
           </div>
@@ -138,9 +167,12 @@ export default function Announce() {
             </div>
           </div>
 
-          <button className="btn btn-coral btn-block" disabled={busy || !form.title.trim() || !form.body.trim()} onClick={publish}>
-            {busy ? 'Publishing…' : 'Publish announcement'}
-          </button>
+          <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+            <button className="btn btn-coral" style={{ flex: 1 }} disabled={busy || !form.title.trim() || !form.body.trim()} onClick={publish}>
+              {busy ? (editingId ? 'Saving…' : 'Publishing…') : (editingId ? 'Save changes' : 'Publish announcement')}
+            </button>
+            {editingId && <button className="btn btn-quiet" onClick={cancelEdit}>Cancel</button>}
+          </div>
         </div>
 
         <h2 style={{ margin: '44px 0 18px' }}>Already on the website</h2>
@@ -153,8 +185,10 @@ export default function Announce() {
                 <div className="meta">
                   {item.category === 'event' ? 'Event' : 'Announcement'}
                   {item.pinned ? ' · marked important' : ''} · posted {formatDate(item.created_at)}
+                  {wasEdited(item) ? ` · edited ${formatDate(item.updated_at)}` : ''}
                 </div>
               </div>
+              <button className="btn btn-quiet" onClick={() => startEdit(item)}>Edit</button>
               <button className="btn btn-quiet" onClick={() => togglePin(item)}>
                 {item.pinned ? 'Remove “important”' : 'Mark important'}
               </button>

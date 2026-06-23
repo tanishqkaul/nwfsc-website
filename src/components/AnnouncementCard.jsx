@@ -1,4 +1,4 @@
-import { formatDate, shortDay } from '../lib/format.js'
+import { formatDate, shortDay, wasEdited } from '../lib/format.js'
 
 export default function AnnouncementCard({ item }) {
   const isEvent = item.category === 'event'
@@ -26,7 +26,10 @@ export default function AnnouncementCard({ item }) {
           </div>
         )}
         <p className="card-text">{item.body}</p>
-        <p className="card-date">Posted {formatDate(item.created_at)}</p>
+        <p className="card-date">
+          Posted {formatDate(item.created_at)}
+          {wasEdited(item) && <> · updated {formatDate(item.updated_at)}</>}
+        </p>
       </div>
     </article>
   )
