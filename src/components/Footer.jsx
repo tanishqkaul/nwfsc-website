@@ -26,7 +26,7 @@ export default function Footer() {
           </p>
         </div>
         <div className="footer-hibiscus" aria-hidden="true">
-          <HibiscusArt bare />
+          <HibiscusArt bare ring="#fdfaf3" />
         </div>
       </div>
       <div className="footer-bottom">

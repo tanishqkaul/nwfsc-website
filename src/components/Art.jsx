@@ -18,13 +18,15 @@ export function MasiBand() {
   )
 }
 
-// A warm hibiscus illustration. Pass bare={true} to remove the circle background (for dark backgrounds).
-export function HibiscusArt({ bare = false }) {
+// A warm hibiscus illustration.
+// bare={true} removes the fill circle. ring="color" shows the dashed border in that color.
+export function HibiscusArt({ bare = false, ring = null }) {
   const petals = [0, 72, 144, 216, 288]
+  const ringColor = ring || '#0e5757'
   return (
     <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Hibiscus flower illustration">
       {!bare && <circle cx="120" cy="120" r="112" fill="#e9f2f2" />}
-      {!bare && <circle cx="120" cy="120" r="112" fill="none" stroke="#0e5757" strokeWidth="3" strokeDasharray="4 8" />}
+      {(!bare || ring) && <circle cx="120" cy="120" r="112" fill="none" stroke={ringColor} strokeWidth="3" strokeDasharray="4 8" />}
       <g transform="translate(120 120)">
         {petals.map(angle => (
           <g key={angle} transform={`rotate(${angle})`}>
