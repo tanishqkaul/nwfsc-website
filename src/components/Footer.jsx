@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { MasiBand } from './Art.jsx'
+import { MasiBand, HibiscusArt } from './Art.jsx'
 
 export default function Footer() {
   return (
@@ -24,6 +24,9 @@ export default function Footer() {
             <Link to="/committee">Our Committee</Link><br />
             <Link to="/admin">Committee sign in</Link>
           </p>
+        </div>
+        <div className="footer-hibiscus" aria-hidden="true">
+          <HibiscusArt bare />
         </div>
       </div>
       <div className="footer-bottom">

@@ -22,7 +22,7 @@ export default function Header() {
       <div className="site-header">
         <div className="header-inner">
           <Link to="/" className="brand">
-            <img src="/hibiscus.svg" alt="" />
+            <img src="/logo2.png" alt="" className="brand-logo" />
             <span>
               <span className="brand-name">North West Fiji Seniors Club</span><br />
               <span className="brand-sub">Friendship · Wellbeing · Community</span>

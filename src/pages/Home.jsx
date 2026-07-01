@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase, isConfigured } from '../lib/supabase.js'
 import { sampleAnnouncements } from '../lib/sample.js'
 import AnnouncementCard from '../components/AnnouncementCard.jsx'
-import { HibiscusArt, MasiBand } from '../components/Art.jsx'
+import { MasiBand } from '../components/Art.jsx'
 
 const ACTIVITIES = [
   { icon: '🥋', title: 'Tai Chi', desc: 'Every last Sunday of the month at Coburg Library. Gentle movement, breathing and meditation for balance and wellbeing.' },
@@ -57,7 +57,7 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-art">
-            <HibiscusArt />
+            <img src="/logo.png" alt="North West Fiji Seniors Club logo" className="hero-logo-art" />
           </div>
         </div>
       </section>
@@ -98,12 +98,18 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <h2>Our vision</h2>
+          <div className="heading-flower-row">
+            <h2>Our vision</h2>
+            <img src="/hibiscus.svg" aria-hidden="true" className="heading-flower-icon" />
+          </div>
           <p className="lead" style={{ fontSize: '1.15rem', maxWidth: '44rem', marginTop: '10px' }}>
             Supporting senior adults to engage, enrich and foster a sense of
             purpose in their lives.
           </p>
-          <h2 style={{ marginTop: '34px' }}>Our mission</h2>
+          <div className="heading-flower-row" style={{ marginTop: '34px' }}>
+            <h2>Our mission</h2>
+            <img src="/hibiscus.svg" aria-hidden="true" className="heading-flower-icon" />
+          </div>
           <p style={{ maxWidth: '52rem', marginTop: '10px' }}>
             To reduce social isolation, improve the lifestyle, health and
             wellbeing of our seniors, and to empower them to lead meaningful and
@@ -117,7 +123,10 @@ export default function Home() {
 
       <section className="section">
         <div className="container">
-          <h2>Our values</h2>
+          <div className="heading-flower-row">
+            <h2>Our values</h2>
+            <img src="/hibiscus.svg" aria-hidden="true" className="heading-flower-icon" />
+          </div>
           <div className="values-grid">
             {VALUES.map(v => <div className="value-item" key={v}>{v}</div>)}
           </div>
